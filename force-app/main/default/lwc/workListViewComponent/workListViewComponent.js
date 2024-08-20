@@ -8,8 +8,7 @@ const columns = [
       typeAttributes: { label: { fieldName: 'Name' }}},
     { label: 'Subject', fieldName: 'agf__Subject__c' },
     { label: 'Status', fieldName: 'agf__Status__c' },
-    { label: 'Scheduled Build', fieldName: 'scheduledBuildUrl', type: 'url', 
-      typeAttributes: { label: { fieldName: 'scheduledBuildName' }}},
+    { label: 'Build Release Date', fieldName: 'buildReleaseDate', type: 'date' }, // Displaying the date directly
     { label: 'Assigned To', fieldName: 'assigneeUrl', type: 'url', 
       typeAttributes: { label: { fieldName: 'assigneeName' }}}
 ];
@@ -29,7 +28,7 @@ export default class WorkListViewComponent extends LightningElement {
                     ...record,
                     workUrl: `/ideaexchange/s/adm-work/${record.Id}`,
                     scheduledBuildUrl: record.agf__Scheduled_Build__c ? `/ideaexchange/s/adm-build/${record.agf__Scheduled_Build__c}` : null,
-                    scheduledBuildName: record.agf__Scheduled_Build__r ? record.agf__Scheduled_Build__r.Name : 'N/A',
+                    buildReleaseDate: record.Scheduled_Build_Release_Date__c ? record.Scheduled_Build_Release_Date__c : 'N/A', // Correctly display the date
                     assigneeUrl: record.agf__Assignee__c ? `/ideaexchange/s/profile/${record.agf__Assignee__c}` : null,
                     assigneeName: record.agf__Assignee__r ? record.agf__Assignee__r.Name : 'N/A'
                 };
