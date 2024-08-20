@@ -117,7 +117,7 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
             });
     }
 
-    handleViewClick(event) {
+    handleEditClick(event) {
         const actionRecordId = event.currentTarget.dataset.id;
         console.log('View button clicked for recordId:', actionRecordId);
         const modal = this.template.querySelector('c-work-popup-component');
