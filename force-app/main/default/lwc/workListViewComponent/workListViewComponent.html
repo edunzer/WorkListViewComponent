@@ -4,8 +4,9 @@
             key-field="Id"
             data={workRecords}
             columns={columns}
-            hide-checkbox-column="true"
+            onrowselection={handleRowSelection}
             resize-column-disabled
+            max-row-selection="1"
         >
         </lightning-datatable>
     </lightning-card>

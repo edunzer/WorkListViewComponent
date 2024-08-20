@@ -1,0 +1,27 @@
+<template>
+    <template if:true={message}>
+        <div class="slds-text-align_center slds-m-around_medium">
+            {message}
+        </div>
+    </template>
+    <template if:true={workItemActions}>
+        <template for:each={workItemActions} for:item="action">
+            <lightning-card key={action.Id} icon-name="standard:action_list_component" variant="Narrow">
+                <a slot="title" href="javascript:void(0);" data-id={action.Id} onclick={handleTitleClick} class="slds-card__header-link">
+                    <lightning-formatted-text value={action.Name}></lightning-formatted-text>
+                </a>
+                <div class="slds-p-horizontal_small">
+                    <p><strong>Type:</strong> {action.Action_Type__c}</p>
+                    <p><strong>Status:</strong> {action.Status__c}</p>
+                    <p><strong>Due Date:</strong> {action.Due_Date__c}</p>
+                    <p><strong>Description:</strong> {action.Description__c}</p>
+                </div>
+            </lightning-card>
+        </template>
+    </template>
+    <template if:true={error}>
+        <div class="slds-text-color_error slds-text-align_center slds-m-around_medium">
+            {error}
+        </div>
+    </template>
+</template>
