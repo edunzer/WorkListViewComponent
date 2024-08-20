@@ -1,41 +1,47 @@
 <template>
-    <template if:true={message}>
-        <div class="slds-text-align_center slds-m-around_medium slds-box">
-            {message}
+    <!-- Header for the component -->
+    <lightning-card title="Work Action Items">
+        <div class="slds-m-around_medium">
+            <!-- Display message or work items based on conditions -->
+            <template if:true={message}>
+                <div class="slds-text-align_center slds-m-around_medium slds-box">
+                    {message}
+                </div>
+            </template>
+            <template if:true={workItemActions}>
+                <template for:each={workItemActions} for:item="action">
+                    <lightning-card 
+                        key={action.Id} 
+                        icon-name="standard:action_list_component" 
+                        variant="Narrow"
+                        class="card-style">
+                        <div slot="title">
+                            <lightning-formatted-text value={action.Name}></lightning-formatted-text>
+                        </div>
+                        <div class="slds-p-horizontal_small">
+                            <p><strong>Type:</strong> {action.Action_Type__c}</p>
+                            <p><strong>Status:</strong> {action.Status__c}</p>
+                            <p><strong>Due Date:</strong> {action.Due_Date__c}</p>
+                            <p><strong>Description:</strong> {action.Description__c}</p>
+                        </div>
+                        <div slot="footer" class="slds-p-horizontal_small">
+                            <lightning-button 
+                                label="View" 
+                                variant="neutral" 
+                                data-id={action.Id} 
+                                onclick={handleViewClick}>
+                            </lightning-button>
+                        </div>
+                    </lightning-card>
+                </template>
+            </template>
+            <template if:true={error}>
+                <div class="slds-text-color_error slds-text-align_center slds-m-around_medium slds-box">
+                    {error}
+                </div>
+            </template>
         </div>
-    </template>
-    <template if:true={workItemActions}>
-        <template for:each={workItemActions} for:item="action">
-            <lightning-card 
-                key={action.Id} 
-                icon-name="standard:action_list_component" 
-                variant="Narrow"
-                class="card-style">
-                <div slot="title">
-                    <lightning-formatted-text value={action.Name}></lightning-formatted-text>
-                </div>
-                <div class="slds-p-horizontal_small">
-                    <p><strong>Type:</strong> {action.Action_Type__c}</p>
-                    <p><strong>Status:</strong> {action.Status__c}</p>
-                    <p><strong>Due Date:</strong> {action.Due_Date__c}</p>
-                    <p><strong>Description:</strong> {action.Description__c}</p>
-                </div>
-                <div slot="footer" class="slds-p-horizontal_small">
-                    <lightning-button 
-                        label="View" 
-                        variant="neutral" 
-                        data-id={action.Id} 
-                        onclick={handleViewClick}>
-                    </lightning-button>
-                </div>
-            </lightning-card>
-        </template>
-    </template>
-    <template if:true={error}>
-        <div class="slds-text-color_error slds-text-align_center slds-m-around_medium slds-box">
-            {error}
-        </div>
-    </template>
+    </lightning-card>
 
     <!-- Include the workPopupComponent to ensure it's available in the DOM -->
     <c-work-popup-component></c-work-popup-component>
