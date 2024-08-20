@@ -24,7 +24,7 @@
                     <lightning-button 
                         label="View" 
                         variant="neutral" 
-                        data-url={action.actionUrl} 
+                        data-id={action.Id} 
                         onclick={handleViewClick}>
                     </lightning-button>
                 </div>
@@ -36,4 +36,7 @@
             {error}
         </div>
     </template>
+
+    <!-- Include the workPopupComponent to ensure it's available in the DOM -->
+    <c-work-popup-component></c-work-popup-component>
 </template>

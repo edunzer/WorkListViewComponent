@@ -9,6 +9,8 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
     error;
     recordId;
     message = 'Select work item to see action items';
+    isModalOpen = false;
+    selectedActionId;
 
     @wire(MessageContext)
     messageContext;
@@ -71,12 +73,18 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
     }
 
     handleViewClick(event) {
-        const url = event.currentTarget.dataset.url;
-        this[NavigationMixin.Navigate]({
-            type: 'standard__webPage',
-            attributes: {
-                url: url
-            }
-        });
+        const recordId = event.currentTarget.dataset.id;
+        const modal = this.template.querySelector('c-work-popup-component');
+        
+        if (modal) {
+            modal.open(recordId);
+        } else {
+            console.error('Modal component not found in DOM');
+        }
+    }
+    
+
+    handleModalClose() {
+        this.isModalOpen = false;
     }
 }
