@@ -70,13 +70,12 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
             });
     }
 
-    handleCardClick(event) {
-        const recordId = event.currentTarget.dataset.id;
+    handleViewClick(event) {
+        const url = event.currentTarget.dataset.url;
         this[NavigationMixin.Navigate]({
-            type: 'standard__recordPage',
+            type: 'standard__webPage',
             attributes: {
-                recordId: recordId,
-                actionName: 'view'
+                url: url
             }
         });
     }

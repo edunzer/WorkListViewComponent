@@ -9,10 +9,8 @@
             <lightning-card 
                 key={action.Id} 
                 icon-name="standard:action_list_component" 
-                variant="Narrow" 
-                class="card-style"
-                data-id={action.Id}
-                onclick={handleCardClick}>
+                variant="Narrow"
+                class="card-style">
                 <div slot="title">
                     <lightning-formatted-text value={action.Name}></lightning-formatted-text>
                 </div>
@@ -21,6 +19,14 @@
                     <p><strong>Status:</strong> {action.Status__c}</p>
                     <p><strong>Due Date:</strong> {action.Due_Date__c}</p>
                     <p><strong>Description:</strong> {action.Description__c}</p>
+                </div>
+                <div slot="footer" class="slds-p-horizontal_small">
+                    <lightning-button 
+                        label="View" 
+                        variant="neutral" 
+                        data-url={action.actionUrl} 
+                        onclick={handleViewClick}>
+                    </lightning-button>
                 </div>
             </lightning-card>
         </template>
