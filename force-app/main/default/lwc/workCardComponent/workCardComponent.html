@@ -1,6 +1,6 @@
 <template>
     <template if:true={message}>
-        <div class="slds-text-align_center slds-m-around_medium">
+        <div class="slds-text-align_center slds-m-around_medium slds-box">
             {message}
         </div>
     </template>
@@ -32,7 +32,7 @@
         </template>
     </template>
     <template if:true={error}>
-        <div class="slds-text-color_error slds-text-align_center slds-m-around_medium">
+        <div class="slds-text-color_error slds-text-align_center slds-m-around_medium slds-box">
             {error}
         </div>
     </template>
