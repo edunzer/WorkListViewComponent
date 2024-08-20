@@ -6,10 +6,16 @@
     </template>
     <template if:true={workItemActions}>
         <template for:each={workItemActions} for:item="action">
-            <lightning-card key={action.Id} icon-name="standard:action_list_component" variant="Narrow">
-                <a slot="title" href="javascript:void(0);" data-id={action.Id} onclick={handleTitleClick} class="slds-card__header-link">
+            <lightning-card 
+                key={action.Id} 
+                icon-name="standard:action_list_component" 
+                variant="Narrow" 
+                class="card-style"
+                data-id={action.Id}
+                onclick={handleCardClick}>
+                <div slot="title">
                     <lightning-formatted-text value={action.Name}></lightning-formatted-text>
-                </a>
+                </div>
                 <div class="slds-p-horizontal_small">
                     <p><strong>Type:</strong> {action.Action_Type__c}</p>
                     <p><strong>Status:</strong> {action.Status__c}</p>

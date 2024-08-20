@@ -70,7 +70,7 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
             });
     }
 
-    handleTitleClick(event) {
+    handleCardClick(event) {
         const recordId = event.currentTarget.dataset.id;
         this[NavigationMixin.Navigate]({
             type: 'standard__recordPage',
