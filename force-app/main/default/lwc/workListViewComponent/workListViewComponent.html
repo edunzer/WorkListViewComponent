@@ -1,0 +1,12 @@
+<template>
+    <lightning-card title="My Work Items">
+        <lightning-datatable
+            key-field="Id"
+            data={workRecords}
+            columns={columns}
+            hide-checkbox-column="true"
+            resize-column-disabled
+        >
+        </lightning-datatable>
+    </lightning-card>
+</template>
