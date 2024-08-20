@@ -3,7 +3,8 @@ public with sharing class workListViewController {
     public static List<agf__ADM_Work__c> getWorkRecords() {
         // Get the current user's Id
         Id currentUserId = UserInfo.getUserId();
-        
+        System.debug('Current User ID: ' + currentUserId);
+
         // Query for Work Item Team records related to the current user
         List<agf__ADM_Work__c> workRecords = [
             SELECT Name, agf__Subject__c, agf__Status__c, agf__Scheduled_Build__c, agf__Scheduled_Build__r.Name, agf__Assignee__c, agf__Assignee__r.Name
@@ -14,6 +15,11 @@ public with sharing class workListViewController {
                 WHERE User__c = :currentUserId
             )
         ];
+
+        System.debug('Work Records Found: ' + workRecords.size());
+        for (agf__ADM_Work__c workRecord : workRecords) {
+            System.debug('Work Record: ' + workRecord);
+        }
         
         return workRecords;
     }

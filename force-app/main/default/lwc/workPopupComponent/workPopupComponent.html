@@ -1,0 +1,49 @@
+<template>
+    <!-- Only render the modal if it's visible -->
+    <template if:true={isVisible}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal/Popup Header -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClose}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Work Item Action Details</h2>
+                </header>
+
+                <!-- Modal/Popup Body -->
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-record-edit-form record-id={workItemActionId} object-api-name="Work_Item_Action__c" onsuccess={handleSuccess}>
+                        <lightning-layout multiple-rows="true">
+                            <lightning-layout-item flexibility="auto" padding="around-small" size="6">
+                                <lightning-output-field field-name="Name"></lightning-output-field>
+                            </lightning-layout-item>
+                            <lightning-layout-item flexibility="auto" padding="around-small" size="6">
+                                <lightning-output-field field-name="Action_Type__c"></lightning-output-field>
+                            </lightning-layout-item>
+                            <lightning-layout-item flexibility="auto" padding="around-small" size="6">
+                                <lightning-input-field field-name="Status__c"></lightning-input-field>
+                            </lightning-layout-item>
+                            <lightning-layout-item flexibility="auto" padding="around-small" size="6">
+                                <lightning-output-field field-name="Due_Date__c"></lightning-output-field>
+                            </lightning-layout-item>
+                            <lightning-layout-item flexibility="auto" padding="around-small" size="12">
+                                <lightning-output-field field-name="Description__c"></lightning-output-field>
+                            </lightning-layout-item>
+                            <!-- Add more fields as necessary -->
+                        </lightning-layout>
+                        
+                        <!-- Modal/Popup Footer -->
+                        <footer class="slds-modal__footer">
+                            <lightning-button type="submit" label="Save" variant="brand"></lightning-button>
+                            <lightning-button label="Close" onclick={handleClose}></lightning-button>
+                        </footer>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+        </section>
+
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>
