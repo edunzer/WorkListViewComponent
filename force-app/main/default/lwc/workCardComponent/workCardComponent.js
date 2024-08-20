@@ -12,6 +12,7 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
     workRecordId; // Stores the Work record ID
     selectedActionId; // Stores the Work Item Action record ID
     isModalOpen = false;
+    message = 'Select work item to see action items'; // Default message
 
     wiredResult;
 
@@ -42,6 +43,7 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
     handleWorkMessage(message) {
         console.log('Message received in workCardComponent from WorkMessageChannel:', message);
         this.workRecordId = message.recordId; // This is the Work record ID
+        this.message = undefined; // Clear any existing messages
         this.refreshData(); // Fetch the latest work item actions
     }
 
@@ -56,17 +58,22 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
         this.wiredResult = result; // Store the wired result for refreshing
         const { data, error } = result;
         if (data) {
-            this.workItemActions = data.map(action => ({
-                ...action,
-                actionUrl: `/ideaexchange/s/work-item-action/${action.Id}/view`
-            }));
-            this.message = undefined;
+            if (data.length > 0) {
+                this.workItemActions = data.map(action => ({
+                    ...action,
+                    actionUrl: `/ideaexchange/s/work-item-action/${action.Id}/view`
+                }));
+                this.message = undefined;
+            } else {
+                this.workItemActions = [];
+                this.message = 'No action items for selected work item';
+            }
             this.error = undefined;
             console.log('Updated workItemActions:', this.workItemActions);
         } else if (error) {
             this.error = error;
             this.workItemActions = [];
-            this.message = 'No action items for selected work item';
+            this.message = 'Error loading action items';
         }
     }
 
@@ -106,7 +113,7 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
                 console.error('Error fetching work item actions:', error);
                 this.error = error;
                 this.workItemActions = [];
-                this.message = undefined;
+                this.message = 'Error loading action items';
             });
     }
 
