@@ -1,57 +1,93 @@
-import { LightningElement, wire } from 'lwc';
+import { LightningElement, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, MessageContext } from 'lightning/messageService';
 import getWorkItemActions from '@salesforce/apex/WorkCardController.getWorkItemActions';
 import WORK_MESSAGE_CHANNEL from '@salesforce/messageChannel/WorkMessageChannel__c';
+import WORK_ITEM_MESSAGE_CHANNEL from '@salesforce/messageChannel/WorkItemMessageChannel__c';
+import { refreshApex } from '@salesforce/apex';
 
 export default class WorkCardComponent extends NavigationMixin(LightningElement) {
-    workItemActions = [];
+    @track workItemActions = []; // Track this property to ensure reactivity
     error;
-    recordId;
-    message = 'Select work item to see action items';
+    workRecordId; // Stores the Work record ID
+    selectedActionId; // Stores the Work Item Action record ID
     isModalOpen = false;
-    selectedActionId;
+
+    wiredResult;
 
     @wire(MessageContext)
     messageContext;
 
     connectedCallback() {
-        this.subscribeToMessageChannel();
+        console.log('WorkCardComponent connected.');
+        this.subscribeToMessageChannels();
     }
 
-    subscribeToMessageChannel() {
-        this.subscription = subscribe(
+    subscribeToMessageChannels() {
+        this.subscriptionWork = subscribe(
             this.messageContext,
             WORK_MESSAGE_CHANNEL,
-            (message) => this.handleMessage(message)
+            (message) => this.handleWorkMessage(message)
         );
+        console.log('Subscribed to WorkMessageChannel');
+
+        this.subscriptionWorkItem = subscribe(
+            this.messageContext,
+            WORK_ITEM_MESSAGE_CHANNEL,
+            (message) => this.handleWorkItemMessage(message)
+        );
+        console.log('Subscribed to WorkItemMessageChannel');
     }
 
-    handleMessage(message) {
-        this.recordId = message.recordId;
-        this.fetchWorkItemActions();
+    handleWorkMessage(message) {
+        console.log('Message received in workCardComponent from WorkMessageChannel:', message);
+        this.workRecordId = message.recordId; // This is the Work record ID
+        this.refreshData(); // Fetch the latest work item actions
     }
 
-    @wire(getWorkItemActions, { workId: '$recordId' })
-    wiredWorkItemActions({ error, data }) {
-        if (data && data.length > 0) {
+    handleWorkItemMessage(message) {
+        console.log('Message received in workCardComponent from WorkItemMessageChannel:', message);
+        // Ensure the correct Work record data is refreshed
+        this.refreshData();
+    }
+
+    @wire(getWorkItemActions, { workId: '$workRecordId' })
+    wiredWorkItemActions(result) {
+        this.wiredResult = result; // Store the wired result for refreshing
+        const { data, error } = result;
+        if (data) {
             this.workItemActions = data.map(action => ({
                 ...action,
                 actionUrl: `/ideaexchange/s/work-item-action/${action.Id}/view`
             }));
             this.message = undefined;
             this.error = undefined;
-        } else if (data && data.length === 0) {
-            this.workItemActions = [];
-            this.message = 'No action items for selected work item';
+            console.log('Updated workItemActions:', this.workItemActions);
         } else if (error) {
             this.error = error;
             this.workItemActions = [];
+            this.message = 'No action items for selected work item';
+        }
+    }
+
+    refreshData() {
+        // Clear the existing data to force a re-render
+        this.workItemActions = [];
+        this.error = undefined;
+
+        // Explicitly refresh the wired data
+        if (this.wiredResult) {
+            refreshApex(this.wiredResult);
+            console.log('Data refreshed via refreshApex.');
+        } else {
+            // Fallback in case refreshApex is not applicable
+            this.fetchWorkItemActions();
         }
     }
 
     fetchWorkItemActions() {
-        getWorkItemActions({ workId: this.recordId })
+        console.log('Fetching work item actions for recordId:', this.workRecordId);
+        getWorkItemActions({ workId: this.workRecordId })
             .then(result => {
                 if (result.length > 0) {
                     this.workItemActions = result.map(action => ({
@@ -64,8 +100,10 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
                     this.message = 'No action items for selected work item';
                 }
                 this.error = undefined;
+                console.log('Fetched workItemActions:', this.workItemActions);
             })
             .catch(error => {
+                console.error('Error fetching work item actions:', error);
                 this.error = error;
                 this.workItemActions = [];
                 this.message = undefined;
@@ -73,18 +111,20 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
     }
 
     handleViewClick(event) {
-        const recordId = event.currentTarget.dataset.id;
+        const actionRecordId = event.currentTarget.dataset.id;
+        console.log('View button clicked for recordId:', actionRecordId);
         const modal = this.template.querySelector('c-work-popup-component');
         
         if (modal) {
-            modal.open(recordId);
+            modal.open(actionRecordId);
+            console.log('Modal opened for recordId:', actionRecordId);
         } else {
             console.error('Modal component not found in DOM');
         }
     }
-    
 
     handleModalClose() {
         this.isModalOpen = false;
+        console.log('Modal closed.');
     }
 }
