@@ -14,16 +14,16 @@
 
                 <!-- Modal/Popup Body -->
                 <div class="slds-modal__content slds-p-around_medium">
-                    <lightning-record-view-form record-id={recordId} object-api-name="Work_Item_Action__c">
+                    <lightning-record-edit-form record-id={recordId} object-api-name="Work_Item_Action__c" onsuccess={handleSuccess}>
                         <lightning-layout multiple-rows="true">
                             <lightning-layout-item flexibility="auto" padding="around-small" size="6">
                                 <lightning-output-field field-name="Name"></lightning-output-field>
                             </lightning-layout-item>
                             <lightning-layout-item flexibility="auto" padding="around-small" size="6">
-                                <lightning-output-field field-name="Action_Type__c"></lightning-output-field>
+                                <lightning-input-field field-name="Action_Type__c"></lightning-input-field>
                             </lightning-layout-item>
                             <lightning-layout-item flexibility="auto" padding="around-small" size="6">
-                                <lightning-output-field field-name="Status__c"></lightning-output-field>
+                                <lightning-input-field field-name="Status__c"></lightning-input-field>
                             </lightning-layout-item>
                             <lightning-layout-item flexibility="auto" padding="around-small" size="6">
                                 <lightning-output-field field-name="Due_Date__c"></lightning-output-field>
@@ -33,13 +33,14 @@
                             </lightning-layout-item>
                             <!-- Add more fields as necessary -->
                         </lightning-layout>
-                    </lightning-record-view-form>
+                        
+                        <!-- Modal/Popup Footer -->
+                        <footer class="slds-modal__footer">
+                            <lightning-button type="submit" label="Save" variant="brand"></lightning-button>
+                            <lightning-button label="Close" onclick={handleClose}></lightning-button>
+                        </footer>
+                    </lightning-record-edit-form>
                 </div>
-
-                <!-- Modal/Popup Footer -->
-                <footer class="slds-modal__footer">
-                    <lightning-button label="Close" onclick={handleClose}></lightning-button>
-                </footer>
             </div>
         </section>
 
