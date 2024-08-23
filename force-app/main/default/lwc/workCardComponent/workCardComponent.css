@@ -1,3 +1,8 @@
 .slds-p-horizontal_small {
     font-size: 0.9rem; /* Adjust text size if needed */
 }
+
+/* Add padding between the card and the pagination buttons */
+.pagination-container {
+    margin-top: 20px;
+}

@@ -1,4 +1,4 @@
-import { LightningElement, wire } from 'lwc';
+import { LightningElement, wire, track } from 'lwc';
 import getWorkRecords from '@salesforce/apex/WorkListViewController.getWorkRecords';
 import { publish, MessageContext } from 'lightning/messageService';
 import WORK_MESSAGE_CHANNEL from '@salesforce/messageChannel/WorkMessageChannel__c';
@@ -14,16 +14,22 @@ const columns = [
 ];
 
 export default class WorkListViewComponent extends LightningElement {
-    columns = columns;
-    workRecords;
+    @track columns = columns;
+    @track workRecords;
+    @track page = 1;
+    @track pageSize = 10; // Number of records per page
+    @track totalRecords;
+    @track totalPage;
 
     @wire(MessageContext)
     messageContext;
 
-    @wire(getWorkRecords)
+    @wire(getWorkRecords, { pageSize: '$pageSize', pageNumber: '$page' })
     wiredWorkRecords({ error, data }) {
         if (data) {
-            this.workRecords = data.map(record => {
+            this.totalRecords = data.totalRecords;
+            this.updateTotalPages();
+            this.workRecords = data.workRecords.map(record => {
                 return {
                     ...record,
                     workUrl: `/ideaexchange/s/adm-work/${record.Id}`,
@@ -36,6 +42,30 @@ export default class WorkListViewComponent extends LightningElement {
         } else if (error) {
             this.workRecords = undefined;
             console.error('Error fetching work records:', error);
+        }
+    }
+
+    updateTotalPages() {
+        this.totalPage = Math.ceil(this.totalRecords / this.pageSize);
+    }
+
+    get isPreviousDisabled() {
+        return this.page <= 1;
+    }
+
+    get isNextDisabled() {
+        return this.page >= this.totalPage;
+    }
+
+    handlePrevious() {
+        if (this.page > 1) {
+            this.page -= 1;
+        }
+    }
+
+    handleNext() {
+        if (this.page < this.totalPage) {
+            this.page += 1;
         }
     }
 

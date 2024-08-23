@@ -7,14 +7,17 @@ import WORK_ITEM_MESSAGE_CHANNEL from '@salesforce/messageChannel/WorkItemMessag
 import { refreshApex } from '@salesforce/apex';
 
 export default class WorkCardComponent extends NavigationMixin(LightningElement) {
-    @track workItemActions = []; // Track this property to ensure reactivity
+    @track workItemActions = [];
     error;
-    workRecordId; // Stores the Work record ID
-    selectedActionId; // Stores the Work Item Action record ID
+    workRecordId;
+    selectedActionId;
     isModalOpen = false;
-    message = 'Select work item to see action items'; // Default message
-
+    message = 'Select work item to see action items';
     wiredResult;
+
+    @track page = 1;
+    @track pageSize = 3;
+    @track totalPage = 1;
 
     @wire(MessageContext)
     messageContext;
@@ -42,20 +45,20 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
 
     handleWorkMessage(message) {
         console.log('Message received in workCardComponent from WorkMessageChannel:', message);
-        this.workRecordId = message.recordId; // This is the Work record ID
-        this.message = undefined; // Clear any existing messages
-        this.refreshData(); // Fetch the latest work item actions
+        this.workRecordId = message.recordId;
+        this.page = 1; // Reset to first page
+        this.message = undefined;
+        this.refreshData();
     }
 
     handleWorkItemMessage(message) {
         console.log('Message received in workCardComponent from WorkItemMessageChannel:', message);
-        // Ensure the correct Work record data is refreshed
         this.refreshData();
     }
 
     @wire(getWorkItemActions, { workId: '$workRecordId' })
     wiredWorkItemActions(result) {
-        this.wiredResult = result; // Store the wired result for refreshing
+        this.wiredResult = result;
         const { data, error } = result;
         if (data) {
             if (data.length > 0) {
@@ -63,6 +66,7 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
                     ...action,
                     actionUrl: `/ideaexchange/s/work-item-action/${action.Id}/view`
                 }));
+                this.totalPage = Math.ceil(this.workItemActions.length / this.pageSize);
                 this.message = undefined;
             } else {
                 this.workItemActions = [];
@@ -78,16 +82,13 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
     }
 
     refreshData() {
-        // Clear the existing data to force a re-render
         this.workItemActions = [];
         this.error = undefined;
 
-        // Explicitly refresh the wired data
         if (this.wiredResult) {
             refreshApex(this.wiredResult);
             console.log('Data refreshed via refreshApex.');
         } else {
-            // Fallback in case refreshApex is not applicable
             this.fetchWorkItemActions();
         }
     }
@@ -101,6 +102,7 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
                         ...action,
                         actionUrl: `/ideaexchange/s/work-item-action/${action.Id}/view`
                     }));
+                    this.totalPage = Math.ceil(this.workItemActions.length / this.pageSize);
                     this.message = undefined;
                 } else {
                     this.workItemActions = [];
@@ -115,6 +117,36 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
                 this.workItemActions = [];
                 this.message = 'Error loading action items';
             });
+    }
+
+    get paginatedWorkItemActions() {
+        const start = (this.page - 1) * this.pageSize;
+        const end = start + this.pageSize;
+        return this.workItemActions.slice(start, end);
+    }
+
+    get isPaginationVisible() {
+        return this.workItemActions.length > 4;
+    }
+
+    get isPreviousDisabled() {
+        return this.page === 1;
+    }
+
+    get isNextDisabled() {
+        return this.page === this.totalPage || this.totalPage === 0;
+    }
+
+    handlePrevious() {
+        if (this.page > 1) {
+            this.page -= 1;
+        }
+    }
+
+    handleNext() {
+        if (this.page < this.totalPage) {
+            this.page += 1;
+        }
     }
 
     handleEditClick(event) {

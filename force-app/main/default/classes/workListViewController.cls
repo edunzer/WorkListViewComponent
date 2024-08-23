@@ -1,9 +1,9 @@
 public with sharing class workListViewController {
     @AuraEnabled(cacheable=true)
-    public static List<agf__ADM_Work__c> getWorkRecords() {
+    public static Map<String, Object> getWorkRecords(Integer pageSize, Integer pageNumber) {
         // Get the current user's Id
         Id currentUserId = UserInfo.getUserId();
-        System.debug('Current User ID: ' + currentUserId);
+        Integer offset = (pageNumber - 1) * pageSize;
 
         // Query for Work Item Team records related to the current user
         List<agf__ADM_Work__c> workRecords = [
@@ -14,13 +14,17 @@ public with sharing class workListViewController {
                 FROM Work_Item_Team__c
                 WHERE User__c = :currentUserId
             )
+            LIMIT :pageSize OFFSET :offset
         ];
 
-        System.debug('Work Records Found: ' + workRecords.size());
-        for (agf__ADM_Work__c workRecord : workRecords) {
-            System.debug('Work Record: ' + workRecord);
-        }
-        
-        return workRecords;
+        // Query for the total number of records for pagination
+        Integer totalRecords = [SELECT COUNT() FROM agf__ADM_Work__c WHERE Id IN (SELECT Work__c FROM Work_Item_Team__c WHERE User__c = :currentUserId)];
+
+        // Prepare the result map
+        Map<String, Object> result = new Map<String, Object>();
+        result.put('workRecords', workRecords);
+        result.put('totalRecords', totalRecords);
+
+        return result;
     }
 }

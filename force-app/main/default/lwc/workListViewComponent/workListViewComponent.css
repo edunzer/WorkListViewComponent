@@ -13,7 +13,12 @@
     padding: 0; /* Adjust padding */
 }
 
-/* Optionally, you can add some margin or padding to the datatable if needed */
+/* Add some margin or padding to the datatable */
 .lightning-datatable {
     margin-top: 10px; /* Example of adding some margin above the table */
+}
+
+/* Add padding between the datatable and the pagination buttons */
+.pagination-container {
+    margin-top: 20px;
 }
