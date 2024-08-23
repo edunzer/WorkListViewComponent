@@ -8,6 +8,11 @@ import { refreshApex } from '@salesforce/apex';
 
 export default class WorkCardComponent extends NavigationMixin(LightningElement) {
     @track workItemActions = []; // Track this property to ensure reactivity
+    @track paginatedWorkItemActions = []; // Paginated list of actions
+    @track page = 1;
+    @track pageSize = 3; // Default page size
+    @track totalPage = 1;
+
     error;
     workRecordId; // Stores the Work record ID
     selectedActionId; // Stores the Work Item Action record ID
@@ -20,7 +25,6 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
     messageContext;
 
     connectedCallback() {
-        console.log('WorkCardComponent connected.');
         this.subscribeToMessageChannels();
     }
 
@@ -30,26 +34,21 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
             WORK_MESSAGE_CHANNEL,
             (message) => this.handleWorkMessage(message)
         );
-        console.log('Subscribed to WorkMessageChannel');
 
         this.subscriptionWorkItem = subscribe(
             this.messageContext,
             WORK_ITEM_MESSAGE_CHANNEL,
             (message) => this.handleWorkItemMessage(message)
         );
-        console.log('Subscribed to WorkItemMessageChannel');
     }
 
     handleWorkMessage(message) {
-        console.log('Message received in workCardComponent from WorkMessageChannel:', message);
         this.workRecordId = message.recordId; // This is the Work record ID
         this.message = undefined; // Clear any existing messages
         this.refreshData(); // Fetch the latest work item actions
     }
 
     handleWorkItemMessage(message) {
-        console.log('Message received in workCardComponent from WorkItemMessageChannel:', message);
-        // Ensure the correct Work record data is refreshed
         this.refreshData();
     }
 
@@ -58,18 +57,18 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
         this.wiredResult = result; // Store the wired result for refreshing
         const { data, error } = result;
         if (data) {
-            if (data.length > 0) {
-                this.workItemActions = data.map(action => ({
-                    ...action,
-                    actionUrl: `/ideaexchange/s/work-item-action/${action.Id}/view`
-                }));
+            this.workItemActions = data.map(action => ({
+                ...action,
+                actionUrl: `/ideaexchange/s/work-item-action/${action.Id}/view`
+            }));
+
+            if (this.workItemActions.length > 0) {
+                this.updatePagination();
                 this.message = undefined;
             } else {
-                this.workItemActions = [];
                 this.message = 'No action items for selected work item';
             }
             this.error = undefined;
-            console.log('Updated workItemActions:', this.workItemActions);
         } else if (error) {
             this.error = error;
             this.workItemActions = [];
@@ -77,40 +76,71 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
         }
     }
 
+    updatePagination() {
+        this.totalPage = Math.ceil(this.workItemActions.length / this.pageSize);
+        this.paginate();
+    }
+
+    paginate() {
+        const start = (this.page - 1) * this.pageSize;
+        const end = this.page * this.pageSize;
+        this.paginatedWorkItemActions = this.workItemActions.slice(start, end);
+    }
+
+    get isPaginationVisible() {
+        return this.totalPage > 1;
+    }
+
+    get isPreviousDisabled() {
+        return this.page === 1;
+    }
+
+    get isNextDisabled() {
+        return this.page === this.totalPage;
+    }
+
+    handlePrevious() {
+        if (this.page > 1) {
+            this.page -= 1;
+            this.paginate();
+        }
+    }
+
+    handleNext() {
+        if (this.page < this.totalPage) {
+            this.page += 1;
+            this.paginate();
+        }
+    }
+
     refreshData() {
-        // Clear the existing data to force a re-render
         this.workItemActions = [];
         this.error = undefined;
 
-        // Explicitly refresh the wired data
         if (this.wiredResult) {
             refreshApex(this.wiredResult);
-            console.log('Data refreshed via refreshApex.');
         } else {
-            // Fallback in case refreshApex is not applicable
             this.fetchWorkItemActions();
         }
     }
 
     fetchWorkItemActions() {
-        console.log('Fetching work item actions for recordId:', this.workRecordId);
         getWorkItemActions({ workId: this.workRecordId })
             .then(result => {
-                if (result.length > 0) {
-                    this.workItemActions = result.map(action => ({
-                        ...action,
-                        actionUrl: `/ideaexchange/s/work-item-action/${action.Id}/view`
-                    }));
+                this.workItemActions = result.map(action => ({
+                    ...action,
+                    actionUrl: `/ideaexchange/s/work-item-action/${action.Id}/view`
+                }));
+
+                if (this.workItemActions.length > 0) {
+                    this.updatePagination();
                     this.message = undefined;
                 } else {
-                    this.workItemActions = [];
                     this.message = 'No action items for selected work item';
                 }
                 this.error = undefined;
-                console.log('Fetched workItemActions:', this.workItemActions);
             })
             .catch(error => {
-                console.error('Error fetching work item actions:', error);
                 this.error = error;
                 this.workItemActions = [];
                 this.message = 'Error loading action items';
@@ -119,12 +149,10 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
 
     handleEditClick(event) {
         const actionRecordId = event.currentTarget.dataset.id;
-        console.log('View button clicked for recordId:', actionRecordId);
         const modal = this.template.querySelector('c-work-popup-component');
         
         if (modal) {
             modal.open(actionRecordId);
-            console.log('Modal opened for recordId:', actionRecordId);
         } else {
             console.error('Modal component not found in DOM');
         }
@@ -132,6 +160,5 @@ export default class WorkCardComponent extends NavigationMixin(LightningElement)
 
     handleModalClose() {
         this.isModalOpen = false;
-        console.log('Modal closed.');
     }
 }
