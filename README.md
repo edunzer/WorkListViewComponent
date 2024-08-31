@@ -35,7 +35,7 @@ The WorkCardComponent automatically resets the pagination to the first page when
 For more information, please check out the [Wiki](https://github.com/edunzer/WorkListViewComponent/wiki) for this repository. It includes detailed information about each component, including:
 
 - [A Component Overview](https://github.com/edunzer/WorkListViewComponent/wiki)
-- [Details about the WorkListView HTML](https://github.com/edunzer/WorkListViewComponent/wikiWorkListViewComponent-HTML)
+- [Details about the WorkListView HTML](https://github.com/edunzer/WorkListViewComponent/wiki/WorkListViewComponent-HTML)
 - [Details about the WorkCardComponent HTML](https://github.com/edunzer/WorkListViewComponent/wiki/WorkCardComponent-HTML)
 - [Details about the WorkListView Javascript](https://github.com/edunzer/WorkListViewComponent/wiki/WorkListViewComponent-JavaScript)
 - [Details about the WorkCardComponent Javascript](https://github.com/edunzer/WorkListViewComponent/wiki/WorkCardComponent-JavaScript)
